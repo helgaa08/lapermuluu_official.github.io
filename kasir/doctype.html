@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kasir Sederhana - Laper Mulu</title>
+    <style>
+         :root {
+            --accent: #c62828;
+            --bg: #fbf7ed;
+            --card: #fff
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            font-family: Inter, system-ui, Arial, sans-serif;
+            margin: 0;
+            background: var(--bg);
+            color: #222
+        }
+        
+        header {
+            background: var(--card);
+            padding: 18px 16px;
+            border-bottom: 4px solid rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--accent)
+        }
+        
+        .wrap {
+            max-width: 1100px;
+            margin: 18px auto;
+            padding: 0 16px
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 18px
+        }
+        
+        .card {
+            background: var(--card);
+            padding: 14px;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06)
+        }
+        
+        .flex {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+        
+        label {
+            font-size: 13px;
+            color: #555
+        }
+        
+        .category {
+            margin-bottom: 12px
+        }
+        
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px dashed rgba(0, 0, 0, 0.03);
+            margin-bottom: 8px
+        }
+        
+        .thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            background: #f0e9de;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden
+        }
+        
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+        
+        .meta {
+            flex: 1
+        }
+        
+        .meta b {
+            display: block;
+            font-size: 15px
+        }
+        
+        .meta small {
+            color: #777
+        }
+        
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+        
+        button {
+            border: 0;
+            background: var(--accent);
+            color: #fff;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer
+        }
+        
+        button.ghost {
+            background: #eee;
+            color: #333
+        }
+        
+        .danger {
+            background: #b71c1c
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 8px
+        }
+        
+        input[type=text],
+        input[type=number],
+        select {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #e6ded0;
+            width: 100%
+        }
+        
+        input[type=file] {
+            padding: 6px
+        }
+        
+        #cartList {
+            list-style: none;
+            padding: 0;
+            margin: 0
+        }
+        
+        #cartList li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee
+        }
+        
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px
+        }
+        
+        .modal.open {
+            display: flex
+        }
+        
+        .modal-content {
+            width: 100%;
+            max-width: 720px;
+            background: #fff;
+            padding: 18px;
+            border-radius: 12px
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+        
+        table th,
+        table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #f1efe9
+        }
+        
+        .small {
+            font-size: 13px;
+            color: #555
+        }
+        
+        footer {
+            margin-top: 18px;
+            text-align: center;
+            color: #999;
+            font-size: 13px
+        }
+        
+        @media(max-width:880px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+            .thumb {
+                width: 56px;
+                height: 56px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Kasir Sederhana — Laper Mulu</h1>
+    </header>
+
+    <main class="wrap">
+        <div class="grid">
+            <section>
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                        <div>
+                            <strong>Daftar Menu</strong>
+                            <div class="small">Klik "Beli" untuk menambah ke keranjang</div>
+                        </div>
+                        <div class="small">Menu tersimpan: <span id="menuCount">0</span></div>
+                    </div>
+
+                    <div id="menuList"></div>
+                </div>
+
+                <div class="card" style="margin-top:12px">
+                    <strong>Tambah / Edit Menu</strong>
+                    <div style="margin-top:10px" class="form">
+                        <label class="small">Nama</label>
+                        <input id="mNama" type="text" placeholder="Contoh: Mie Gacor">
+
+                        <div class="form-row" style="margin-top:8px">
+                            <div style="flex:1">
+                                <label class="small">Harga (k)</label>
+                                <input id="mHarga" type="number" step="0.1" placeholder="12.5">
+                            </div>
+                            <div style="width:140px">
+                                <label class="small">Kategori</label>
+                                <select id="mKategori">
+                                    <option value="Mie">Mie</option>
+                                    <option value="Snack">Snack</option>
+                                    <option value="Minuman">Minuman</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label class="small" style="margin-top:8px">Gambar (URL)</label>
+                        <input id="mGambarUrl" type="text" placeholder="https://...">
+
+                        <div style="display:flex;gap:8px;margin-top:10px">
+                            <button onclick="saveMenu()">Simpan Menu</button>
+                            <button class="ghost" onclick="resetForm()">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside>
+                <div class="card">
+                    <strong>Keranjang</strong>
+                    <div style="margin-top:8px">
+                        <ul id="cartList"></ul>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                            <div class="small">Total</div>
+                            <div><strong id="cartTotal">0</strong>k</div>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-top:12px">
+                            <button onclick="openInvoice()">Buat Invoice</button>
+                            <button class="ghost" onclick="clearCart()">Kosongkan</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:12px">
+                    <strong>Manajemen Menu</strong>
+                    <div style="margin-top:8px" class="small">Di sini kamu bisa menghapus (mark sold) atau restore menu.</div>
+                    <div style="margin-top:8px">
+                        <button class="ghost" onclick="showSold()">Tampilkan Semua (termasuk SOLD)</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <footer class="small">Sistem sederhana — data disimpan di browser (localStorage). Cocok untuk demo / toko kecil.</footer>
+    </main>
+
+    <!-- MODAL -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <h3>Invoice</h3>
+                <div><button class="ghost" onclick="closeInvoice()">Tutup</button></div>
+            </div>
+
+            <div id="invoiceArea"></div>
+        </div>
+    </div>
+
+    <script>
+        const PLACEHOLDER = "https://via.placeholder.com/120?text=No+Image";
+
+        const LS_KEY = "kasir_menu_v1";
+        const LS_CART = "kasir_cart_v1";
+
+        let menu = loadMenu();
+        let cart = loadCart();
+        let showSoldFlag = false;
+
+        function loadMenu() {
+            try {
+                const raw = localStorage.getItem(LS_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch {
+                return {};
+            }
+        }
+
+        function saveMenuToStorage() {
+            localStorage.setItem(LS_KEY, JSON.stringify(menu));
+            renderMenu();
+        }
+
+        function loadCart() {
+            try {
+                const raw = localStorage.getItem(LS_CART);
+                return raw ? JSON.parse(raw) : [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem(LS_CART, JSON.stringify(cart));
+            renderCart();
+        }
+
+        function uid() {
+            return "id" + Math.random().toString(36).substr(2, 9);
+        }
+
+        function saveMenu() {
+            const nama = document.getElementById("mNama").value.trim();
+            const harga = parseFloat(document.getElementById("mHarga").value);
+            const kategori = document.getElementById("mKategori").value;
+            const url = document.getElementById("mGambarUrl").value.trim();
+
+            if (!nama || !harga) return alert("Nama & harga wajib diisi!");
+
+            const finalImg = url || PLACEHOLDER;
+
+            if (!menu[kategori]) menu[kategori] = [];
+
+            menu[kategori].push({
+                id: uid(),
+                nama,
+                harga,
+                img: finalImg,
+                sold: false
+            });
+
+            saveMenuToStorage();
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById("mNama").value = "";
+            document.getElementById("mHarga").value = "";
+            document.getElementById("mGambarUrl").value = "";
+        }
+
+        function renderMenu() {
+            const el = document.getElementById("menuList");
+            el.innerHTML = "";
+            let count = 0;
+
+            for (const cat of Object.keys(menu)) {
+                const wrap = document.createElement("div");
+                wrap.className = "category";
+
+                const h = document.createElement("h4");
+                h.textContent = cat;
+                wrap.appendChild(h);
+
+                menu[cat].forEach(item => {
+                    if (!showSoldFlag && item.sold) return;
+
+                    count++;
+
+                    const it = document.createElement("div");
+                    it.className = "item";
+
+                    it.innerHTML = `
+                <div class="thumb">
+                    <img src="${item.img || PLACEHOLDER}">
+                </div>
+                <div class="meta">
+                    <b>${item.nama}</b>
+                    <small>${item.harga}k</small>
+                </div>
+                <div class="actions">
+                    <button onclick="buy('${cat}','${item.id}')">Beli</button>
+                    <button class="ghost" onclick="toggleSold('${cat}','${item.id}')">
+                        ${item.sold ? "Restore" : "Mark SOLD"}
+                    </button>
+                </div>
+            `;
+
+                    wrap.appendChild(it);
+                });
+
+                el.appendChild(wrap);
+            }
+
+            document.getElementById("menuCount").textContent = count;
+        }
+
+        function buy(cat, id) {
+            const item = menu[cat].find(i => i.id === id);
+            if (!item) return alert("Item tidak ditemukan");
+            if (item.sold) return alert("Item sudah SOLD");
+
+            cart.push({
+                id: item.id,
+                nama: item.nama,
+                harga: item.harga,
+                qty: 1
+            });
+
+            saveCart();
+        }
+
+        function renderCart() {
+            const el = document.getElementById("cartList");
+            el.innerHTML = "";
+
+            let total = 0;
+
+            cart.forEach((c, i) => {
+                total += c.qty * c.harga;
+
+                const li = document.createElement("li");
+                li.innerHTML = `
+            <div>${c.nama} <span class="small">x${c.qty}</span></div>
+            <div>
+                <b>${(c.harga * c.qty).toFixed(1)}</b>k
+                <button class="ghost" onclick="removeCart(${i})">-</button>
+            </div>
+        `;
+                el.appendChild(li);
+            });
+
+            document.getElementById("cartTotal").textContent = total.toFixed(1);
+        }
+
+        function removeCart(i) {
+            cart.splice(i, 1);
+            saveCart();
+        }
+
+        function clearCart() {
+            cart = [];
+            saveCart();
+        }
+
+        function toggleSold(cat, id) {
+            const it = menu[cat].find(i => i.id === id);
+            if (!it) return;
+            it.sold = !it.sold;
+            saveMenuToStorage();
+        }
+
+        function showSold() {
+            showSoldFlag = !showSoldFlag;
+            renderMenu();
+        }
+
+        function openInvoice() {
+            if (cart.length === 0) return alert("Keranjang kosong");
+
+            const modal = document.getElementById("modal");
+            modal.classList.add("open");
+
+            const area = document.getElementById("invoiceArea");
+
+            let total = 0;
+
+            let html = `
+        <strong>Struk Pembelian</strong>
+        <div class="small">Tanggal: ${new Date().toLocaleString()}</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Harga(k)</th>
+                    <th>Qty</th>
+                    <th>Subtotal(k)</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+            cart.forEach(c => {
+                const sub = c.qty * c.harga;
+                total += sub;
+
+                html += `
+            <tr>
+                <td>${c.nama}</td>
+                <td>${c.harga.toFixed(1)}</td>
+                <td>${c.qty}</td>
+                <td>${sub.toFixed(1)}</td>
+            </tr>
+        `;
+            });
+
+            html += `
+            </tbody>
+        </table>
+        <div style="text-align:right;margin-top:8px">
+            <strong>Total: ${total.toFixed(1)}k</strong>
+        </div>
+    `;
+
+            area.innerHTML = html;
+        }
+
+        function closeInvoice() {
+            document.getElementById("modal").classList.remove("open");
+        }
+
+        if (Object.keys(menu).length === 0) menu = {};
+        renderMenu();
+        renderCart();
+    </script>
+
+</body>
+
+</html>
